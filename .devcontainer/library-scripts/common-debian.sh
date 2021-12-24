@@ -231,10 +231,8 @@ fi
 
 # .bashrc/.zshrc snippet
 rc_snippet="$(cat << 'EOF'
-
 if [ -z "${USER}" ]; then export USER=$(whoami); fi
 if [[ "${PATH}" != *"$HOME/.local/bin"* ]]; then export PATH="${PATH}:$HOME/.local/bin"; fi
-
 # Display optional first run image specific notice if configured and terminal is interactive
 if [ -t 1 ] && [[ "${TERM_PROGRAM}" = "vscode" || "${TERM_PROGRAM}" = "codespaces" ]] && [ ! -f "$HOME/.config/vscode-dev-containers/first-run-notice-already-displayed" ]; then
     if [ -f "/usr/local/etc/vscode-dev-containers/first-run-notice.txt" ]; then
@@ -246,7 +244,6 @@ if [ -t 1 ] && [[ "${TERM_PROGRAM}" = "vscode" || "${TERM_PROGRAM}" = "codespace
     # Mark first run notice as displayed after 10s to avoid problems with fast terminal refreshes hiding it
     ((sleep 10s; touch "$HOME/.config/vscode-dev-containers/first-run-notice-already-displayed") &)
 fi
-
 # Set the default git editor if not already set
 if [ -z "$(git config --get core.editor)" ] && [ -z "${GIT_EDITOR}" ]; then
     if  [ "${TERM_PROGRAM}" = "vscode" ]; then
@@ -257,20 +254,16 @@ if [ -z "$(git config --get core.editor)" ] && [ -z "${GIT_EDITOR}" ]; then
         fi
     fi
 fi
-
 EOF
 )"
 
 # code shim, it fallbacks to code-insiders if code is not available
 cat << 'EOF' > /usr/local/bin/code
 #!/bin/sh
-
 get_in_path_except_current() {
     which -a "$1" | grep -A1 "$0" | grep -v "$0"
 }
-
 code="$(get_in_path_except_current code)"
-
 if [ -n "$code" ]; then
     exec "$code" "$@"
 elif [ "$(command -v code-insiders)" ]; then
@@ -297,7 +290,6 @@ chmod +x /usr/local/bin/systemctl
 # Codespaces bash and OMZ themes - partly inspired by https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/robbyrussell.zsh-theme
 codespaces_bash="$(cat \
 <<'EOF'
-
 # Codespaces bash prompt theme
 __bash_prompt() {
     local userpart='`export XIT=$? \
@@ -320,7 +312,6 @@ __bash_prompt() {
     unset -f __bash_prompt
 }
 __bash_prompt
-
 EOF
 )"
 
@@ -345,7 +336,6 @@ ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
 ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg_bold[yellow]%}✗%{$fg_bold[cyan]%})"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[cyan]%})"
 __zsh_prompt
-
 EOF
 )"
 
@@ -408,7 +398,6 @@ fi
 meta_info_script="$(cat << 'EOF'
 #!/bin/sh
 . /usr/local/etc/vscode-dev-containers/meta.env
-
 # Minimal output
 if [ "$1" = "version" ] || [ "$1" = "image-version" ]; then
     echo "${VERSION}"
@@ -420,7 +409,6 @@ elif [ "$1" = "content" ] || [ "$1" = "content-url" ] || [ "$1" = "contents" ] |
     echo "${CONTENTS_URL}"
     exit 0
 fi
-
 #Full output
 echo
 echo "Development container image information"

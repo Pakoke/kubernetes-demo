@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/kubernetes-helm-minikube
 {
-	"name": "Kubernetes - Minikube-in-Docker",
+	"name": "Kubernetes - Minikube-in-Docker - Java",
 	"dockerFile": "Dockerfile",
 	"runArgs": ["--privileged"],
 	"mounts": [
@@ -11,22 +11,32 @@
 	"overrideCommand": false,
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": {},
+	"settings": { 
+		"java.home": "/opt/java/openjdk",
+		// Language Server
+		// see - https://github.com/redhat-developer/vscode-java/wiki/Using-a-Proxy
+		// TODO:Described according to the environment
+		//"java.jdt.ls.vmargs": "-Dhttp.proxyHost=HOST -Dhttp.proxyPort=PORT -Dhttp.proxyUser=USER -Dhttp.proxyPassword=PASS -Dhttps.proxyHost=HOST -Dhttps.proxyPort=PORT -Dhttps.proxyUser=USER -Dhttps.proxyPassword=PASS",
+		// see - https://github.com/redhat-developer/vscode-java/issues/399#issuecomment-355113311
+		"java.import.gradle.enabled": false
+	},
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-azuretools.vscode-docker",
-		"ms-kubernetes-tools.vscode-kubernetes-tools"
+		"ms-kubernetes-tools.vscode-kubernetes-tools",
+		"vscjava.vscode-java-pack",
+		"redhat.java"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "kubectl version",
+	"postCreateCommand": "/bin/bash ./.devcontainer/maven/postCreateCommand.sh && kubectl version",
 
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
-	// "postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
+	//"postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
 
 	// Minikube does not like running as root, so use a non-root user.
 	"remoteUser": "vscode"

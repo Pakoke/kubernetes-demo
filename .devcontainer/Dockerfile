@@ -11,6 +11,9 @@ ARG USE_MOBY="true"
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+ARG JAVA_HOME="/opt/java/openjdk"
+ARG MAVEN_VERSION=3.8.3
+ARG MAVEN_SHA=1c12a5df43421795054874fd54bb8b37d242949133b5bf6052a063a13a93f13a20e6e9dae2b3d85b9c7034ec977bbc2b6e7f66832182b9c863711d78bfe60faa
 # Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
 COPY library-scripts/*.sh /tmp/library-scripts/
 RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
@@ -19,6 +22,30 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
     && mkdir -p /home/${USERNAME}/.minikube \
     && chown ${USERNAME} /home/${USERNAME}/.minikube \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
+
+#FROM icr.io/appcafe/open-liberty:full-java11-openj9-ubi
+
+RUN echo "building dev tools..." \
+    # Install OpenJDK11
+    && DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y update \
+    && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:openjdk-r/ppa \
+    && apt-get install -y openjdk-11-jre openjdk-11-jdk \
+    && mkdir -p "$JAVA_HOME" && xargs ln -s "/usr/lib/jvm/java-11-openjdk-amd64" "$JAVA_HOME" \
+    && java -version \
+    && echo "JAVA_HOME=$JAVA_HOME" >> /etc/environment \
+    && echo "$JAVA_HOME" \
+    # Install Maven
+    && mkdir -p /usr/share/maven /usr/share/maven/ref \
+    && curl -fsSL -o /tmp/apache-maven.tar.gz https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+    && echo "${MAVEN_SHA} /tmp/apache-maven.tar.gz" | sha512sum -c - \
+    && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
+    && rm -f /tmp/apache-maven.tar.gz \
+    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn \
+    # Maven User Settings
+    && mkdir /home/${USERNAME}/.m2 \
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.m2
 
 VOLUME [ "/var/lib/docker" ]
 
