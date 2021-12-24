@@ -21,6 +21,8 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
     && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh "latest" "latest" "latest" \
     && mkdir -p /home/${USERNAME}/.minikube \
     && chown ${USERNAME} /home/${USERNAME}/.minikube \
+    && mkdir -p /home/${USERNAME}/.kube \
+    && chown ${USERNAME} /home/${USERNAME}/.kube \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 #FROM icr.io/appcafe/open-liberty:full-java11-openj9-ubi
@@ -45,7 +47,8 @@ RUN echo "building dev tools..." \
     && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn \
     # Maven User Settings
     && mkdir /home/${USERNAME}/.m2 \
-    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.m2
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.m2 \
+    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 VOLUME [ "/var/lib/docker" ]
 

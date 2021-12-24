@@ -6,7 +6,8 @@
 	"runArgs": ["--privileged"],
 	"mounts": [
 		"source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
-		"source=minikube-config,target=/home/vscode/.minikube,type=volume",
+		// "source=minikube-config,target=/home/vscode/.minikube,type=volume",
+		// "source=kubectl-config,target=/home/vscode/.kube,type=volume",
 	],
 	"overrideCommand": false,
 
@@ -33,10 +34,10 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "/bin/bash ./.devcontainer/maven/postCreateCommand.sh && kubectl version",
+	"postCreateCommand": "/bin/bash ./.devcontainer/maven/postCreateCommand.sh && /bin/bash ./.devcontainer/kube/postCreateCommand.sh",
 
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
-	//"postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
+	"postStartCommand": "/bin/bash ./.devcontainer/kube/postStartCommand.sh",
 
 	// Minikube does not like running as root, so use a non-root user.
 	"remoteUser": "vscode"
