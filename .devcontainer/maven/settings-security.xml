@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settingsSecurity>
+    <!-- TODO:Described according to the environment-->
+    <master>{encrypted-master-password=}</master>
+</settingsSecurity>
