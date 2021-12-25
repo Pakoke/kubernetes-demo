@@ -14,11 +14,16 @@ docker build -t inventory:1.0-SNAPSHOT inventory/.
 
 kubectl apply -f kubernetes.yaml
 
-sleep 60
+kubectl get deployments
+
+kubectl wait --for=condition=available --timeout=600s deployment/inventory-deployment
+kubectl wait --for=condition=available --timeout=600s deployment/system-deployment
 
 kubectl get pods
 
 minikube ip
+
+sleep 30
 
 curl http://"$(minikube ip)":31000/system/properties
 curl http://"$(minikube ip)":32000/inventory/systems

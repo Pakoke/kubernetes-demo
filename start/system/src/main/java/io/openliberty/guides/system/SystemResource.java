@@ -25,11 +25,14 @@ import javax.ws.rs.core.Response;
 @Path("/properties")
 public class SystemResource {
 
+  public static String APP_VERSION = "2.0-SNAPSHOT";
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getProperties() {
     return Response.ok(System.getProperties())
       .header("X-Pod-Name", System.getenv("HOSTNAME"))
+      .header("X-App-Version", APP_VERSION)
       .build();
   } 
 }

@@ -25,7 +25,12 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
     && chown ${USERNAME} /home/${USERNAME}/.kube \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
-#FROM icr.io/appcafe/open-liberty:full-java11-openj9-ubi
+# Install Kubernetes tools
+
+RUN echo "installing kubernetes tools..." \
+    && cd /tmp && curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.12.1 TARGET_ARCH=x86_64 sh - \
+    && cp -f /tmp/istio-1.12.1/bin/istioctl /usr/local/bin/istioctl \
+    && chmod 0755 /usr/local/bin/istioctl
 
 RUN echo "building dev tools..." \
     # Install OpenJDK11

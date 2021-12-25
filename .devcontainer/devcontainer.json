@@ -31,7 +31,7 @@
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	// "forwardPorts": [ 31000,32000 ],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "/bin/bash ./.devcontainer/maven/postCreateCommand.sh && /bin/bash ./.devcontainer/kube/postCreateCommand.sh",

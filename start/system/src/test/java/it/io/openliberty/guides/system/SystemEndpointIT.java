@@ -15,22 +15,29 @@ package it.io.openliberty.guides.system;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.Console;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.client.ClientProperties;
 import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.openliberty.guides.system.SystemResource;
+
 public class SystemEndpointIT {
 
     private static String clusterUrl;
+    private static String serviceHost;
 
     private Client client;
     private Response response;
@@ -38,6 +45,8 @@ public class SystemEndpointIT {
     @BeforeAll
     public static void oneTimeSetup() {
         String sysRootPath = System.getProperty("system.service.root");
+        String hostService = System.getProperty("system.service.host");
+        serviceHost = hostService;
         clusterUrl = "http://" + sysRootPath + "/system/properties/";
     }
 
@@ -69,6 +78,15 @@ public class SystemEndpointIT {
     }
 
     @Test
+    public void testAppVersion() {
+        response = this.getResponse(clusterUrl);
+        String expectedVersion = SystemResource.APP_VERSION;
+        String actualVersion = response.getHeaderString("X-App-Version");
+
+        assertEquals(expectedVersion, actualVersion);
+    }
+
+    @Test
     public void testGetProperties() {
         Client client = ClientBuilder.newClient();
         client.register(JsrJsonpProvider.class);
@@ -91,7 +109,15 @@ public class SystemEndpointIT {
      * @return Response object with the response from the specified URL.
      */
     private Response getResponse(String url) {
-        return client.target(url).request().get();
+        javax.ws.rs.client.Invocation.Builder buildRequest = client
+            .target(url)
+            .request()
+            .header(HttpHeaders.HOST, serviceHost);
+        
+        System.out.println("Request sent: "+buildRequest.toString());
+        
+        return buildRequest
+            .get();
     }
 
     /**
@@ -105,7 +131,7 @@ public class SystemEndpointIT {
      *          - response received from the target URL.
      */
     private void assertResponse(String url, Response response) {
-        assertEquals(200, response.getStatus(), "Incorrect response code from " + url);
+        assertEquals(200, response.getStatus(), "Incorrect response code from " + url );
     }
 
 }

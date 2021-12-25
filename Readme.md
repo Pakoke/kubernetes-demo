@@ -14,13 +14,22 @@ docker images
 
 kubectl apply -f kubernetes.yaml
 
+kubectl get deployments
+
+kubectl wait --for=condition=available --timeout=600s deployment/inventory-deployment
+kubectl wait --for=condition=available --timeout=600s deployment/system-deployment
+
 kubectl get pods
 
 MINIKUBE_IP=$(minikube ip)
 
-curl "http://${MINIKUBE_IP}:31000/system/properties"
+curl "http://$(minikube ip):31000/system/properties"
 
-curl "http://${MINIKUBE_IP}:32000/inventory/systems/system-service"
+curl -I "http://$(minikube ip):31000/system/properties"
+
+curl "http://$(minikube ip):32000/inventory/systems/system-service"
+
+curl -I "http://$(minikube ip):32000/inventory/systems/system-service"
 
 kubectl scale deployment/system-deployment --replicas=3
 
@@ -45,6 +54,77 @@ kubectl delete -f kubernetes.yaml
 
 eval $(minikube docker-env -u)
 
-mvn liberty:devc
+
+# Development in container
+cd system
+mvn liberty:devc -Dsystem.service.root="$(minikube ip):31000" 
+
+cd inventory
+mvn liberty:devc -Dinventory.service.root="$(minikube ip):32000" -Dsystem.service.root="$(minikube ip):31000"
+
+
+tail -f /tmp/minikube.log
+
+
+#Istio
+istioctl install --set profile=demo -y
+
+kubectl get deployments -n istio-system
+
+kubectl label namespace default istio-injection=enabled
+
+mvn clean package
+docker build -t system:1.0-SNAPSHOT system/.
+
+kubectl apply -f system.yaml
+
+kubectl apply -f traffic.yaml
+
+kubectl get deployments
+
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+curl -H "Host:example.com" -I http://`minikube ip`:$INGRESS_PORT/system/properties
+
+src/main/java/io/openliberty/guides/system/SystemResource.java -> "public static String APP_VERSION = "2.0-SNAPSHOT";"
+
+mvn clean package
+
+docker build -t system:2.0-SNAPSHOT system/.
+
+kubectl set image deployment/system-deployment-green system-container=system:2.0-SNAPSHOT
+
+curl -H "Host:test.example.com" -I http://`minikube ip`:$INGRESS_PORT/system/properties
+
+curl -H "Host:example.com" -I http://`minikube ip`:$INGRESS_PORT/system/properties
+
+
+traffic.yam -> "
+spec:
+  hosts:
+  - "example.com"
+  gateways:
+  - sys-app-gateway
+  http:
+  - route:
+    - destination:
+        port:
+          number: 9080
+        host: system-service
+        subset: blue
+      weight: 0
+    - destination:
+        port:
+          number: 9080
+        host: system-service
+        subset: green
+      weight: 100
+"
+
+kubectl apply -f traffic.yaml
+
+curl -H "Host:example.com" -I http://`minikube ip`:$INGRESS_PORT/system/properties
+
+mvn test-compile
+mvn failsafe:integration-test -Ddockerfile.skip=true -Dsystem.service.root="$(minikube ip):$INGRESS_PORT" -Dinventory.service.root="$(minikube ip):32000" -Dsystem.service.host="example.com"
 
 ```
