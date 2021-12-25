@@ -45,4 +45,6 @@ kubectl delete -f kubernetes.yaml
 
 eval $(minikube docker-env -u)
 
+mvn liberty:devc
+
 ```
