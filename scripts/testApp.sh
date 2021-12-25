@@ -1,12 +1,11 @@
 #!/bin/bash
 set -euxo pipefail
 
-../scripts/startMinikube.sh
+cd ./start
 
-mvn -Dhttp.keepAlive=false \
-    -Dmaven.wagon.http.pool=false \
-    -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 \
-    -q clean package
+eval $(minikube docker-env)
+
+mvn clean package -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
 
 docker pull icr.io/appcafe/open-liberty:full-java11-openj9-ubi
 
@@ -15,7 +14,7 @@ docker build -t inventory:1.0-SNAPSHOT inventory/.
 
 kubectl apply -f kubernetes.yaml
 
-sleep 120
+sleep 60
 
 kubectl get pods
 
@@ -30,4 +29,9 @@ mvn failsafe:verify
 kubectl logs "$(kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}' | grep system)"
 kubectl logs "$(kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}' | grep inventory)"
 
-../scripts/stopMinikube.sh
+kubectl delete -f kubernetes.yaml
+
+eval $(minikube docker-env -u)
+
+cd ..
+

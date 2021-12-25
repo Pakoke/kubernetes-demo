@@ -39,6 +39,10 @@ docker build -t system:1.0-SNAPSHOT system/.
 docker build -t inventory:1.0-SNAPSHOT inventory/.
 kubectl apply -f kubernetes.yaml
 
+mvn failsafe:integration-test -Ddockerfile.skip=true -Dsystem.service.root="$(minikube ip):31000" -Dinventory.service.root="$(minikube ip):32000"
 
-mvn failsafe:integration-test -Dcluster.ip=$(minikube ip)
+kubectl delete -f kubernetes.yaml
+
+eval $(minikube docker-env -u)
+
 ```
