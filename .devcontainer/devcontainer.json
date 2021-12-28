@@ -27,7 +27,8 @@
 		"ms-azuretools.vscode-docker",
 		"ms-kubernetes-tools.vscode-kubernetes-tools",
 		"vscjava.vscode-java-pack",
-		"redhat.java"
+		"redhat.java",
+		"raushan2016.vscode-k8s-tree"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
