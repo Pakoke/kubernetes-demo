@@ -11,7 +11,7 @@ echo '--------------------------------------------'
 echo ' Cleanup Minikube'
 echo '--------------------------------------------'
 minikube delete 
-nohup bash -c 'minikube start --kubernetes-version=v1.22.0 &' > /tmp/minikube.log 2>&1
+minikube start --kubernetes-version=v1.22.0
 
 echo ''
 echo '--------------------------------------------'
