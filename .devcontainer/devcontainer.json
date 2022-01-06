@@ -6,6 +6,7 @@
 	"runArgs": ["--privileged"],
 	"mounts": [
 		"source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws/credentials,target=/home/vscode/.aws/credentials,type=bind"
 		// "source=minikube-config,target=/home/vscode/.minikube,type=volume",
 		// "source=kubectl-config,target=/home/vscode/.kube,type=volume",
 	],

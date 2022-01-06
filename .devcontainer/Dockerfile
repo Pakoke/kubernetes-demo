@@ -14,11 +14,14 @@ ARG USER_GID=$USER_UID
 ARG JAVA_HOME="/opt/java/openjdk"
 ARG MAVEN_VERSION=3.8.4
 ARG MAVEN_SHA=a9b2d825eacf2e771ed5d6b0e01398589ac1bfa4171f36154d1b5787879605507802f699da6f7cfc80732a5282fd31b28e4cd6052338cbef0fa1358b48a5e3c8
+ARG KUBECTLVERSION="1.21"
+ARG MINIKUBEVERSION="1.24.0"
+ARG EKSCTL="0.77.0"
 # Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
 COPY library-scripts/*.sh /tmp/library-scripts/
 RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
     && /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh "true" "${USERNAME}" "${USE_MOBY}" \ 
-    && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh "latest" "latest" "1.24.0" \
+    && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh "${KUBECTLVERSION}" "latest" "${MINIKUBEVERSION}" \
     && mkdir -p /home/${USERNAME}/.minikube \
     && chown ${USERNAME} /home/${USERNAME}/.minikube \
     && mkdir -p /home/${USERNAME}/.kube \
@@ -54,6 +57,18 @@ RUN echo "building dev tools..." \
     && mkdir /home/${USERNAME}/.m2 \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.m2 \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
+
+RUN echo "installing EKS tools..." \
+    && curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp     \
+    && mv /tmp/eksctl /usr/local/bin \
+    && eksctl version
+
+RUN echo "installing AWS client..." \
+    && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ls . \
+    && sudo ./aws/install \
+    && aws --version
 
 VOLUME [ "/var/lib/docker" ]
 
