@@ -129,7 +129,8 @@ mvn failsafe:integration-test -Ddockerfile.skip=true -Dsystem.service.root="$(mi
 
 
 #EKS Cluster
-eksctl create cluster --name fleetman --nodes-min=3 --profile odilopruebas --region eu-west-3
-eksctl delete cluster --name fleetman --profile odilopruebas --region eu-west-3
+eksctl create cluster --name fleetman --nodes-min=3 --profile testaws --region eu-west-3
+eksctl delete cluster --name fleetman --profile testaws --region eu-west-3
+kubectl get pods -o wide
 
 ```
