@@ -127,4 +127,9 @@ curl -H "Host:example.com" -I http://`minikube ip`:$INGRESS_PORT/system/properti
 mvn test-compile
 mvn failsafe:integration-test -Ddockerfile.skip=true -Dsystem.service.root="$(minikube ip):$INGRESS_PORT" -Dinventory.service.root="$(minikube ip):32000" -Dsystem.service.host="example.com"
 
+
+#EKS Cluster
+eksctl create cluster --name fleetman --nodes-min=3 --profile odilopruebas --region eu-west-3
+eksctl delete cluster --name fleetman --profile odilopruebas --region eu-west-3
+
 ```
