@@ -133,4 +133,7 @@ eksctl create cluster --name fleetman --nodes-min=3 --profile testaws --region e
 eksctl delete cluster --name fleetman --profile testaws --region eu-west-3
 kubectl get pods -o wide
 
+
+kubectl get svc -n monitoring
+
 ```
