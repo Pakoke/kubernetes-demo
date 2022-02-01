@@ -26,6 +26,7 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
     && chown ${USERNAME} /home/${USERNAME}/.minikube \
     && mkdir -p /home/${USERNAME}/.kube \
     && chown ${USERNAME} /home/${USERNAME}/.kube \
+    && export KUBECTLVERSION=${KUBECTLVERSION} && export MINIKUBEVERSION=${MINIKUBEVERSION} \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 # Install Kubernetes tools

@@ -136,4 +136,12 @@ kubectl get pods -o wide
 
 kubectl get svc -n monitoring
 
+minikube addons enable metrics-server
+minikube addons list
+minikube addons enable dashboard
+
+kubectl top pod
+kubectl top node
+kubectl describe node minikube
+
 ```
