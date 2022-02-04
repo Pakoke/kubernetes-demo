@@ -143,5 +143,6 @@ minikube addons enable dashboard
 kubectl top pod
 kubectl top node
 kubectl describe node minikube
+kubectl get hpa -o yaml
 
 ```
