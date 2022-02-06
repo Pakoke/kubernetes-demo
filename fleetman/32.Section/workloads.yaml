@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+spec:
+  # minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: queue
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+      - name: webapp
+        image: richardchesterwood/k8s-fleetman-queue:resources
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 100m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: position-simulator
+spec:
+  # minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: position-simulator
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: position-simulator
+    spec:
+      containers:
+      - name: position-simulator
+        image: richardchesterwood/k8s-fleetman-position-simulator:resources
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: production-microservice
+        volumeMounts:
+          - name: database-config-volume
+            mountPath: /etc/any/directory/config
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 50m
+          limits:
+            memory: 200Mi
+            cpu: 50m
+      volumes:
+      - name: database-config-volume
+        configMap:
+          name: global-database-config
+        # envFrom:
+        #   - configMapRef:
+        #       name: global-database-config
+          # - name: DATABASE_URL
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       name: global-database-config
+          #       key: database.url
+          # - name: DATABASE_PASSWORD
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       name: global-database-config
+          #       key: database.password
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: position-tracker
+spec:
+  # minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: position-tracker
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: position-tracker
+    spec:
+      containers:
+      - name: position-tracker
+        image: richardchesterwood/k8s-fleetman-position-tracker:release4
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: production-microservice
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 50m
+          limits:
+            memory: 200Mi
+            cpu: 50m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  # minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: api-gateway
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: richardchesterwood/k8s-fleetman-api-gateway:release2
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: production-microservice
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 50m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+spec:
+  # minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: webapp
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: richardchesterwood/k8s-fleetman-webapp-angular:release2
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: production-microservice
+        resources:
+          requests:
+            memory: 100Mi
+            cpu: 50m
