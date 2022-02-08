@@ -147,4 +147,18 @@ kubectl get hpa -o yaml
 
 minikube addons enable ingress
 
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm show values prometheus-community/kube-prometheus-stack
+helm upgrade monitoring prometheus-community/kube-prometheus-stack
+helm upgrade monitoring prometheus-community/kube-prometheus-stack --set grafana.adminPassword=admin
+helm upgrade monitoring prometheus-community/kube-prometheus-stack --values=values.yml
+helm pull prometheus-community/kube-prometheus-stack --untar
+helm upgrade monitoring ./kube-prometheus-stack/ --values=myvalues.yml
+helm template monitoring ./kube-prometheus-stack/ --values=myvalues.yml > monitoring-stack.yml
+kubectl apply -f monitoring-stack.yml
+helm create fleetman-helm-chart
+helm template ./fleetman-helm-chart/
+helm template ./fleetman-helm-chart/ --set webapp.numberOfWebAppsReplicas=11
+
 ```
